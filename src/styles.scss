@@ -1,1 +1,12 @@
-/* You can add global styles to this file, and also import other style files */
+// Your variable overrides
+$body-bg: #F2E8CF;
+$body-color: #181D27;
+$primary: #6A994E;
+$secondary: #DB5461;
+$success: #779451;
+$info: #386641;
+$warning: #f48419;
+$danger: #f44336;
+
+// Bootstrap and its default variables
+@import "node_modules/bootstrap/scss/bootstrap";
