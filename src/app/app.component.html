@@ -11,12 +11,13 @@
       <li class="nav-item">
         <a *ngIf="loggedIn" class="nav-link" routerLink="/chat">Chat</a>
       </li>
+      
       <li class="nav-item">
         <a *ngIf="!loggedIn" class="nav-link" routerLink="/login">Login</a>
         <a *ngIf="loggedIn" class="nav-link" (click)="logout()" routerLink="/login">Logout</a>
       </li>
       <li class="nav-item">
-        <a *ngIf="loggedIn" class="nav-link" routerLink="/account">Account</a>
+        <a *ngIf="loggedIn" class="nav-link" > - {{username}}</a>
       </li>
     </ul>
   </div>

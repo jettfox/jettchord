@@ -8,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit {
   title = 'jettchord';
   loggedIn = false;
+  username = ""
   ngOnInit(): void {
     if(sessionStorage.length != 0){
+      this.username = sessionStorage.getItem("username")
       this.loggedIn = true
+
     }
   }
 
