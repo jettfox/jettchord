@@ -1,55 +1,80 @@
 <div class="row">
+
     <div class="col-sm">
-      Groups
-    </div>
-    <div class="col-sm">
+        Groups will be added later
         <form>
-            <label for="newChannel">New Channel</label>
-            <input type="text" [(ngModel)]="newChannel" name="newChannel" id="newChannel" class="form-control"><br>
-            <button (click)="createchannel()" class="btn btn-info">Create New Channel</button><br><br>
-            
-            <select [(ngModel)] = "channelslist" name="channelslist">
-                <option [ngValue]="null">Select Channel</option>
-                <option *ngFor="let channel of channels">
-                    {{channel}}
-                </option>
-            </select>
-            <br>
-            <div>
-                <button *ngIf="!isinChannel" (click)="join()" class="btn btn-secondary">Join</button>&nbsp;
-                <button *ngIf="isinChannel" (click)="leavechannel()" class="btn btn-danger">Leave</button>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="new channel" aria-label="new channel" aria-describedby="basic-addon2" [(ngModel)]="newChannel" name="newChannel" id="newChannel">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" type="button" (click)="createchannel()">Create</button>
+                </div>
+            </div><br><br>
+            <div class="input-group" *ngIf="!isinChannel">
+                <select class="custom-select" id="inputGroupSelect04" [(ngModel)] = "channelslist" name="channelslist">
+                    <option [ngValue]="null">Select Channel</option>
+                    <option *ngFor="let channel of channels">
+                        {{channel}}
+                    </option>
+                </select>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button"  (click)="join()">Join</button>
+                </div>
+            </div>
+            <div *ngIf="isinChannel">
+                <button  (click)="leavechannel()" class="btn btn-danger">Leave {{channelslist}}</button>
             </div>
             
         </form>
     </div>
-    <div class="col-sm">
+    <div class="col-sm" *ngIf="isinChannel">
         <form>
-            <div class="form-channel" *ngIf="isinChannel">
-                <label for="messagecontent">New Message</label>
-                <input type="text" [(ngModel)]="messagecontent" name="messagecontent" id="messagecontent" class="form-control">
-        
+            <div class="form-channel" >
+                <br>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="message" aria-label="message" aria-describedby="basic-addon2" [(ngModel)]="messagecontent" name="messagecontent" id="messagecontent" >
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" *ngIf="isinChannel" (click)="chat()">Send</button>
+                    </div>
+                </div>
             </div>
-            <button *ngIf="isinChannel" (click)="chat()" class="btn btn-primary">Chat</button> &nbsp;
-            <ul>
-            <li *ngFor="let message of allMessages">
-                {{message.message}} - {{message.user}}
-            </li>
-        </ul>
+            <ul class="list-group">
+                <li *ngFor="let message of allMessages" class="list-group-item list-group-item-primary">
+                    {{message.user}}: {{message.message}}
+                </li>
+            </ul>
         </form>
         
     </div>
     <div class="col-sm">
-        <h3>
-            Notices
-        </h3>
-        {{channelnotice}}<br>
-        <button (click)="clearnotice()" class="btn btn-danger">Clear Notice</button><br>
-        <h3>Chat Messages for {{currentchannel}} - {{numusers}} Active Users</h3>
-        <ul>
-            <li *ngFor="let message of messages">
-                {{message.message}} - {{message.user}}
+        <br>
+        <ul class="list-group">
+            <li class="list-group-item active">Current Channel</li>
+            <li class="list-group-item">
+                {{currentchannel}}
             </li>
         </ul>
+        <br>
+        <ul class="list-group">
+            <li class="list-group-item active">Active Users</li>
+            <li class="list-group-item">
+                {{numusers}}
+            </li>
+        </ul>
+        <br>
+        <ul class="list-group">
+            <li class="list-group-item active">New Messages</li>
+            <li *ngFor="let message of messages" class="list-group-item">
+                {{message.user}}: {{message.message}}
+            </li>
+        </ul>
+        <br>
+        <ul class="list-group">
+            <li class="list-group-item active">Notices</li>
+            <li class="list-group-item">
+                {{channelnotice}}
+            </li>
+        </ul>
+        <button (click)="clearnotice()" class="btn btn-danger">Clear Notice</button>
     </div>
 </div>
 
