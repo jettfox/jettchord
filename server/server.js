@@ -48,7 +48,6 @@ app.post('/api/auth', function(req,res){
     user.valid = false;
     
     for (let i=0; i<users.length;i++){
-        console.log(users[i])
         if (req.body.email == users[i].email && req.body.password == users[i].password){
             
             user.username = users[i].username;

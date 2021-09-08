@@ -74,7 +74,6 @@ export class ChatComponent implements OnInit {
   }
   
   createchannel(){
-    console.log(this.createchannel)
     this.socketService.createChannel(this.newChannel);
     this.socketService.reqchannelList();
     this.socketService.getchannelList((msg)=>{this.channels = JSON.parse(msg)});

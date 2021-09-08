@@ -35,7 +35,6 @@ export class LoginComponent implements OnInit {
         res  => {
             if(typeof(Storage) !== 'undefined') {
                 sessionStorage.setItem("username", res.username);
-                console.log(sessionStorage);
                 this.router.navigateByUrl('/').then(() => {
                   window.location.reload();
                 });
