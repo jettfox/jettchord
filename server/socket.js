@@ -1,8 +1,13 @@
+
+var fs = require('fs');
 module.exports = {
     connect: function(io, PORT){
-        var channels = ["channel1", "channel2", "channel3", "channel4"];
+        var channels = JSON.parse(fs.readFileSync('./data/channels.json', 'utf8')); 
         var socketChannel = [];
         var socketChannelnum = [];
+        var messages = [];
+        messages = JSON.parse(fs.readFileSync('./data/messages.json', 'utf8')); 
+        console.log(messages)
         
         const chat = io.of('/chat');
         
@@ -13,12 +18,19 @@ module.exports = {
                     console.log('server', socketChannel[i][0])
                     if (socketChannel[i][0] == socket.id){
                         chat.to(socketChannel[i][1]).emit('message', message);
+                        messages.push(message);
+                        fs.writeFile('./data/messages.json', JSON.stringify(messages),'utf8', function(err){
+                            if (err) throw err;
+                        });
                     }
                 }
             });
             socket.on('newchannel', (newchannel)=>{
                 if (channels.indexOf(newchannel) == -1){
                     channels.push(newchannel);
+                    fs.writeFile('./data/channels.json', JSON.stringify(channels),'utf8', function(err){
+                        if (err) throw err;
+                    });
                     chat.emit('channellist', JSON.stringify(channels));
                 }
             });

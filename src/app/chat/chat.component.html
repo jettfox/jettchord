@@ -42,7 +42,7 @@
         <h3>Chat Messages for {{currentchannel}} - {{numusers}} Active Users</h3>
         <ul>
             <li *ngFor="let message of messages">
-                {{message}}
+                {{message.message}} - {{message.user}}
             </li>
         </ul>
     </div>

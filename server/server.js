@@ -3,6 +3,7 @@ const app = express();
 const listener = require('./listen')
 let socket = require('./socket')
 var cors = require('cors');
+var fs = require('fs');
 
 app.use(cors()); 
 app.use(express.static(__dirname + '..dist/jettchord'));
@@ -31,26 +32,12 @@ socket.connect(io, port)
 
 
 app.post('/api/auth', function(req,res){ 
-    let users = [
-        {
-            "username": "jett",
-            "password": "1234",
-            "email": "jett@email.com",
-            "id": "1"
-        },
-        {
-            "username": "john",
-            "password": "1234",
-            "email": "john@email.com",
-            "id": "2"
-        },
-        {
-            "username": "jeff",
-            "password": "1234",
-            "email": "jeff@email.com",
-            "id": "3"
-        }
-    ]
+    
+    let users = []
+    
+    users = JSON.parse(fs.readFileSync('./data/users.json', 'utf8')); 
+    
+
     if (!req.body) {
         return res.sendStatus(400)
     }
@@ -61,7 +48,7 @@ app.post('/api/auth', function(req,res){
     user.valid = false;
     
     for (let i=0; i<users.length;i++){
-        
+        console.log(users[i])
         if (req.body.email == users[i].email && req.body.password == users[i].password){
             
             user.username = users[i].username;

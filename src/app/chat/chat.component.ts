@@ -13,7 +13,7 @@ export class ChatComponent implements OnInit {
 
   private socket;
   messagecontent: string = "";
-  messages: string[] = [];
+  messages: {}[] = [];
   channels=[];
   channelslist:string="";
   channelnotice:string="";
@@ -76,8 +76,8 @@ export class ChatComponent implements OnInit {
 
   chat(){
     if (this.messagecontent){
-      console.log(this.messagecontent)
-      this.socketService.sendMessage(this.messagecontent);
+      
+      this.socketService.sendMessage({ "message": this.messagecontent, "user": sessionStorage.getItem("username"), "channel": this.currentchannel});
       this.messagecontent = null;
     } else {
       console.log('No Message')
