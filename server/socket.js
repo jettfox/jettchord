@@ -1,98 +1,98 @@
 module.exports = {
     connect: function(io, PORT){
-        var groups = ["group1", "group2", "group3", "group4"];
-        var socketGroup = [];
-        var socketGroupnum = [];
+        var channels = ["channel1", "channel2", "channel3", "channel4"];
+        var socketChannel = [];
+        var socketChannelnum = [];
         
         const chat = io
         
         chat.on('connection', (socket) => {
             console.log("client connected")
             socket.on('message', (message)=>{
-                console.log(message, socketGroup, socket.id)
-                for (let i=0; i<socketGroup.length; i++){
-                    console.log('server', socketGroup[i][0])
-                    if (socketGroup[i][0] == socket.id){
-                        chat.to(socketGroup[i][1]).emit('message', message);
+                console.log(message, socketChannel, socket.id)
+                for (let i=0; i<socketChannel.length; i++){
+                    console.log('server', socketChannel[i][0])
+                    if (socketChannel[i][0] == socket.id){
+                        chat.to(socketChannel[i][1]).emit('message', message);
                     }
                 }
             });
-            socket.on('newgroup', (newgroup)=>{
-                if (groups.indexOf(newgroup) == -1){
-                    groups.push(newgroup);
-                    chat.emit('grouplist', JSON.stringify(groups));
+            socket.on('newchannel', (newchannel)=>{
+                if (channels.indexOf(newchannel) == -1){
+                    channels.push(newchannel);
+                    chat.emit('channellist', JSON.stringify(channels));
                 }
             });
 
-            socket.on('grouplist', (m)=>{
-                console.log('grouplist', m)
-                chat.emit('grouplist', JSON.stringify(groups));
-                console.log(groups)
+            socket.on('channellist', (m)=>{
+                console.log('channellist', m)
+                chat.emit('channellist', JSON.stringify(channels));
+                console.log(channels)
             })
 
-            socket.on('numusers', (group)=>{
-                console.log('numusers', group)
+            socket.on('numusers', (channel)=>{
+                console.log('numusers', channel)
                 var usercount = 0;
-                for (let i=0; i<socketGroupnum.length; i++){
+                for (let i=0; i<socketChannelnum.length; i++){
                     
-                    if(socketGroupnum[i][0] == group){
+                    if(socketChannelnum[i][0] == channel){
                         
-                        usercount = socketGroupnum[i][1];
+                        usercount = socketChannelnum[i][1];
                         console.log('usercount', usercount)
                     }
                 }
-                chat.in(group).emit('numusers', usercount);
+                chat.in(channel).emit('numusers', usercount);
             });
 
-            socket.on('joinGroup', (group)=>{
-                console.log("join group", group)
-                if (groups.includes(group)){
-                    socket.join(group, ()=>{
-                        console.log("join group", group)
-                        var ingroupSocketarray = false
-                        for (let i=0; i<socketGroup.length; i++){
-                            if (socketGroup[i][0]==socket.id){
-                                socketGroupnum[i][1] = group;
-                                ingroup = true;
+            socket.on('joinChannel', (channel)=>{
+                console.log("join channel", channel)
+                if (channels.includes(channel)){
+                    socket.join(channel, ()=>{
+                        console.log("join channel", channel)
+                        var inchannelSocketarray = false
+                        for (let i=0; i<socketChannel.length; i++){
+                            if (socketChannel[i][0]==socket.id){
+                                socketChannelnum[i][1] = channel;
+                                inchannel = true;
                             }
                         }
 
-                        if (ingroupSocketarray == false){
-                            socketGroup.push([socket.id, group]);
-                            var hasgroupnum = false;
-                            for (let j=0; j<socketGroupnum.length; j++){
-                                if (socketGroupnum[j][0]==group){
-                                    socketGroupnum[j][1] = socketGroupnum[j][1] +1;
-                                    hasgroupnum = true;
+                        if (inchannelSocketarray == false){
+                            socketChannel.push([socket.id, channel]);
+                            var haschannelnum = false;
+                            for (let j=0; j<socketChannelnum.length; j++){
+                                if (socketChannelnum[j][0]==channel){
+                                    socketChannelnum[j][1] = socketChannelnum[j][1] +1;
+                                    haschannelnum = true;
                                 }
                             }
     
-                            if (hasgroupnum == false){
-                                socketGroupnum.push([group, 1]);
+                            if (haschannelnum == false){
+                                socketChannelnum.push([channel, 1]);
                             }
                         }
-                        chat.in(group).emit("notice", "A new user has joined");
+                        chat.in(channel).emit("notice", "A new user has joined");
                         
                         
                     });
-                    return chat.in(group).emit("joined", group);
+                    return chat.in(channel).emit("joined", channel);
                 }
             });
 
-            socket.on("leaveGroup", (group)=>{
+            socket.on("leaveChannel", (channel)=>{
 
-                for (let i=0; i<socketGroup.length; i++){
-                    if (socketGroup[i][0] == socket.id){
-                        socketGroup.splice(i, 1);
-                        socket.leave(group);
-                        chat.to(group).emit("notice", "A user has left");
+                for (let i=0; i<socketChannel.length; i++){
+                    if (socketChannel[i][0] == socket.id){
+                        socketChannel.splice(i, 1);
+                        socket.leave(channel);
+                        chat.to(channel).emit("notice", "A user has left");
                     }
                 }
-                for (let j=0; j<socketGroupnum.length; j++){
-                    if (socketGroupnum[j][0] == group){
-                        socketGroupnum[j][1] = socketGroupnum[j][1] -1;
-                        if (socketGroupnum[j][1]==0){
-                            socketGroupnum.splice(j,1)
+                for (let j=0; j<socketChannelnum.length; j++){
+                    if (socketChannelnum[j][0] == channel){
+                        socketChannelnum[j][1] = socketChannelnum[j][1] -1;
+                        if (socketChannelnum[j][1]==0){
+                            socketChannelnum.splice(j,1)
                         }
                     }
                 }
@@ -100,14 +100,14 @@ module.exports = {
 
             socket.on("disconnect", ()=>{
                 //chat.emit('disconnect');
-                for (let i=0; i<socketGroup.length; i++){
-                    if (socketGroup[i][0] == socket.id){
-                        socketGroup.splice(i, 1);
+                for (let i=0; i<socketChannel.length; i++){
+                    if (socketChannel[i][0] == socket.id){
+                        socketChannel.splice(i, 1);
                     }
                 }
-                for (let j=0; j<socketGroupnum.length; j++){
-                    if (socketGroupnum[j][0]==socket.group){
-                        socketGroupnum[j][1] = socketGroupnum[j][1] -1;
+                for (let j=0; j<socketChannelnum.length; j++){
+                    if (socketChannelnum[j][0]==socket.channel){
+                        socketChannelnum[j][1] = socketChannelnum[j][1] -1;
                     }
                 }
                 console.log("Client disconnected");

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client'
 import { nextTick } from 'q';
 
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = 'http://localhost:3000/chat';
 
 @Injectable({
   providedIn: 'root'
@@ -18,25 +18,25 @@ export class SocketService {
     this.socket = io(SERVER_URL);
   }
 
-  joingroup(se1group): void {
-    this.socket.emit("joinGroup", se1group);
+  joinchannel(se1channel): void {
+    this.socket.emit("joinChannel", se1channel);
   }
 
-  leavegroup(se1group): void {
-    this.socket.emit("leaveGroup", se1group);
+  leavechannel(se1channel): void {
+    this.socket.emit("leaveChannel", se1channel);
   }
 
   joined(next): void {
     this.socket.on("joined", res=>next(res));
   }
 
-  createGroup(newgroup){
-    this.socket.emit('newgroup', newgroup);
+  createChannel(newchannel){
+    this.socket.emit('newchannel', newchannel);
   }
 
-  reqnumusers(se1group){
-    console.log("reqnumusers", se1group)
-    this.socket.emit('numusers', se1group);
+  reqnumusers(se1channel){
+    console.log("reqnumusers", se1channel)
+    this.socket.emit('numusers', se1channel);
   }
 
   getnumusers(next){
@@ -44,12 +44,12 @@ export class SocketService {
     this.socket.on('numusers', res=>next(res));
   }
 
-  reqgroupList(){
-    this.socket.emit('grouplist', 'list please');
+  reqchannelList(){
+    this.socket.emit('channellist', 'list please');
   }
 
-  getgroupList(next){
-    this.socket.on('grouplist', res=>next(res));
+  getchannelList(next){
+    this.socket.on('channellist', res=>next(res));
   }
 
   notice(next){

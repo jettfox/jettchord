@@ -15,27 +15,28 @@ export class ChatComponent implements OnInit {
   private socket;
   messagecontent: string = "";
   messages: string[] = [];
-  groups=[];
-  groupslist:string="";
-  groupnotice:string="";
-  currentgroup:string="";
-  isinGroup= false;
-  newGroup:string="";
+  channels=[];
+  channelslist:string="";
+  channelnotice:string="";
+  currentchannel:string="";
+  isinChannel= false;
+  newChannel:string="";
   numusers:number=0;
 
   constructor(private socketService:SocketService) { }
 
   ngOnInit() {
+    console.log(sessionStorage);
     this.socketService.initSocket();
     this.socketService.getMessage((m)=>{this.messages.push(m)});
-    this.socketService.reqgroupList();
-    this.socketService.getgroupList((msg)=>{this.groups = JSON.parse(msg)});
-    this.socketService.notice((msg)=>{this.groupnotice = msg})
-    this.socketService.joined((msg)=>{this.currentgroup = msg
-      if(this.currentgroup != ""){
-        this.isinGroup = true;
+    this.socketService.reqchannelList();
+    this.socketService.getchannelList((msg)=>{this.channels = JSON.parse(msg)});
+    this.socketService.notice((msg)=>{this.channelnotice = msg})
+    this.socketService.joined((msg)=>{this.currentchannel = msg
+      if(this.currentchannel != ""){
+        this.isinChannel = true;
       } else {
-        this.isinGroup = false;
+        this.isinChannel = false;
       }
     });
 
@@ -43,35 +44,35 @@ export class ChatComponent implements OnInit {
 
   join(){
      
-    this.socketService.joingroup(this.groupslist);
-    this.socketService.reqnumusers(this.groupslist);
+    this.socketService.joinchannel(this.channelslist);
+    this.socketService.reqnumusers(this.channelslist);
     this.socketService.getnumusers((res)=>{this.numusers = res});
-    console.log("this.groupslist", this.groupslist, "this.numusers", this.numusers)
+    console.log("this.channelslist", this.channelslist, "this.numusers", this.numusers)
     
   }
 
   clearnotice(){
-    this.groupnotice = "";
+    this.channelnotice = "";
   }
 
-  leavegroup(){
-    this.socketService.leavegroup(this.currentgroup);
-    this.socketService.reqnumusers(this.currentgroup);
+  leavechannel(){
+    this.socketService.leavechannel(this.currentchannel);
+    this.socketService.reqnumusers(this.currentchannel);
     this.socketService.getnumusers((res)=>{this.numusers = res});
-    this.groupslist = null;
-    this.currentgroup = "";
-    this.isinGroup = false;
+    this.channelslist = null;
+    this.currentchannel = "";
+    this.isinChannel = false;
     this.numusers = 0;
-    this.groupnotice = ""
+    this.channelnotice = ""
     this.messages = [];
   }
   
-  creategroup(){
-    console.log(this.creategroup)
-    this.socketService.createGroup(this.newGroup);
-    this.socketService.reqgroupList();
-    this.socketService.getgroupList((msg)=>{this.groups = JSON.parse(msg)});
-    this.newGroup = "";
+  createchannel(){
+    console.log(this.createchannel)
+    this.socketService.createChannel(this.newChannel);
+    this.socketService.reqchannelList();
+    this.socketService.getchannelList((msg)=>{this.channels = JSON.parse(msg)});
+    this.newChannel = "";
     
   }
 

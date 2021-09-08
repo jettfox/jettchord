@@ -1,1 +1,27 @@
-<p>login works!</p>
+<div class="wrapper fadeInDown">
+    <div id="formContent">
+        <form>
+            <div>
+                <input type="text" id="login" class="fadeIn second" [(ngModel)]="email" name="email"
+                    placeholder="login">
+            </div>
+            <div>
+                <input type="text" id="password" class="fadeIn third" [(ngModel)]="password" name="password"
+                    placeholder="password">
+            </div>
+            <div>
+                <div>
+                    <button (click)=Submit() type = submit class="fadeIn fourth">Login</button>
+                </div>
+                <div>
+                    <button (click)=logout() type = submit class="fadeIn fourth">Logout</button>
+                </div>
+            </div>
+        </form>
+        <div id="formFooter">
+            <a class="underlineHover" href="/login" (click)="forgot()">Forgot Password?</a>
+        </div>
+
+    </div>
+</div>
+<router-outlet></router-outlet>
