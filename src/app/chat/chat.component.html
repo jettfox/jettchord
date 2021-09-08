@@ -1,1 +1,32 @@
-<p>chat works!</p>
+<form>
+    <div class="form-group" *ngIf="isinGroup">
+        <label for="messagecontent">New Message</label>
+        <input type="text" [(ngModel)]="messagecontent" name="messagecontent" id="messagecontent" class="form-control">
+
+    </div>
+    <div>
+        <button *ngIf="isinGroup" (click)="chat()" class="btn btn-primary">Chat</button> &nbsp;
+        <button *ngIf="!isinGroup" (click)="join()" class="btn btn-secondary">Join</button>&nbsp;
+        <button *ngIf="isinGroup" (click)="leavegroup()" class="btn btn-success">Leave</button>
+    </div>
+    <select [(ngModel)] = "groupslist" name="groupslist">
+        <option [ngValue]="null">Select Group</option>
+        <option *ngFor="let group of groups">
+            {{group}}
+        </option>
+    </select><br><br>
+    <label for="newGroup">New Group</label>
+    <input type="text" [(ngModel)]="newGroup" name="newGroup" id="newGroup" class="form-control">
+    <button (click)="creategroup()" class="btn btn-info">Create New Group</button>
+</form>
+<h3>
+    Notices
+</h3>
+{{groupnotice}}<br>
+<button (click)="clearnotice()" class="btn btn-danger">Clear Notice</button><br>
+<h3>Chat Messages for {{currentgroup}} - {{numusers}} Active Users</h3>
+<ul>
+    <li *ngFor="let message of messages">
+        {{message}}
+    </li>
+</ul>

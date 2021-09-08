@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client'
 import { nextTick } from 'q';
 
-const SERVER_URL = 'http://localhost:3000/chat';
+const SERVER_URL = 'http://localhost:3000';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +14,7 @@ export class SocketService {
 
   constructor() { }
 
-  initSoceket(): void {
+  initSocket(): void {
     this.socket = io(SERVER_URL);
   }
 
@@ -39,26 +39,28 @@ export class SocketService {
   }
 
   getnumusers(next){
-    this.socket.emit('numusers', res=>next(res));
+    this.socket.on('numusers', res=>next(res));
   }
 
-  reqroom(){
-    this.socket.emit('roomlist', 'list please');
+  reqgroupList(){
+    this.socket.emit('grouplist', 'list please');
   }
 
-  getroom(next){
-    this.socket.emit('roomlist', res=>next(res));
+  getgroupList(next){
+    this.socket.on('grouplist', res=>next(res));
   }
 
   notice(next){
-    this.socket.emit('notice', res=>next(res));
+    this.socket.on('notice', res=>next(res));
   }
 
   sendMessage(message: string): void {
+    console.log('message', message)
     this.socket.emit('message', message);
   }
 
   getMessage(next){
-    this.socket.emit('message', (message)=>next(message));
+    console.log("mesag", next)
+    this.socket.on('message', (message)=>next(message));
   }
 }

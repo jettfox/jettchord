@@ -3,14 +3,16 @@ module.exports = {
         var groups = ["group1", "group2", "group3", "group4"];
         var socketGroup = [];
         var socketGroupnum = [];
-
-        const chat = io.of('/chat');
-
-        chat.on('connection', (socket) => {
+        
+        const chat = io
+        
+        io.on('connection', (socket) => {
+            console.log("client connected")
             socket.on('message', (message)=>{
+                console.log('message', message)
                 for (let i=0; i<socketGroup.length; i++){
                     if (socketGroup[i][0] == socket.id){
-                        chat.to(socketGroup)[i][1].emit('message', message);
+                        chat.to(socketGroup[i][1]).emit('message', message);
                     }
                 }
             });
@@ -23,6 +25,7 @@ module.exports = {
 
             socket.on('grouplist', (m)=>{
                 chat.emit('grouplist', JSON.stringify(groups));
+                console.log(groups)
             })
 
             socket.on('numusers', (group)=>{
@@ -49,7 +52,7 @@ module.exports = {
                         if (ingroupSocketarray == false){
                             socketGroup.push([socket.id, group]);
                             var hasgroupnum = false;
-                            for (let j=0; i<socketGroupnum.length; j++){
+                            for (let j=0; j<socketGroupnum.length; j++){
                                 if (socketGroupnum[j][0]==group){
                                     socketGroupnum[j][1] = socketGroupnum[j][1] +1;
                                     hasgroupnum = true;
@@ -77,7 +80,7 @@ module.exports = {
                         chat.to(group).emit("notice", "A user has left");
                     }
                 }
-                for (let j=0; i<socketGroupnum.length; j++){
+                for (let j=0; j<socketGroupnum.length; j++){
                     if (socketGroupnum[j][0] == group){
                         socketGroupnum[j][1] = socketGroupnum[j][1] -1;
                         if (socketGroupnum[j][1]==0){
@@ -87,14 +90,14 @@ module.exports = {
                 }
             });
 
-            socket.on('disconnect', ()=>{
-                chat.emit('disconnect');
+            socket.on("disconnect", ()=>{
+                //chat.emit('disconnect');
                 for (let i=0; i<socketGroup.length; i++){
                     if (socketGroup[i][0] == socket.id){
                         socketGroup.splice(i, 1);
                     }
                 }
-                for (let j=0; i<socketGroupnum.length; j++){
+                for (let j=0; j<socketGroupnum.length; j++){
                     if (socketGroupnum[j][0]==socket.group){
                         socketGroupnum[j][1] = socketGroupnum[j][1] -1;
                     }
