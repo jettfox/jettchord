@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { toBase64String } from '@angular/compiler/src/output/source_map';
 
 
-const SERVER_URL = "http://localhost:3000";
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
@@ -26,7 +25,6 @@ export class ChatComponent implements OnInit {
   constructor(private socketService:SocketService) { }
 
   ngOnInit() {
-    console.log(sessionStorage);
     this.socketService.initSocket();
     this.socketService.getMessage((m)=>{this.messages.push(m)});
     this.socketService.reqchannelList();

@@ -4,7 +4,7 @@ module.exports = {
         var socketChannel = [];
         var socketChannelnum = [];
         
-        const chat = io
+        const chat = io.of('/chat');
         
         chat.on('connection', (socket) => {
             console.log("client connected")

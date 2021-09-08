@@ -5,9 +5,6 @@ import{HttpClient, HttpErrorResponse} from '@angular/common/http';​
 
 interface User {
   username:string;
-  email:string;
-  age:string;
-  birthdate:string;
   valid:boolean;
 }
 
@@ -24,7 +21,7 @@ export class LoginComponent implements OnInit {
   password:string = "";
   formData = {};
   
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -38,23 +35,17 @@ export class LoginComponent implements OnInit {
         res  => {
             if(typeof(Storage) !== 'undefined') {
                 sessionStorage.setItem("username", res.username);
-                sessionStorage.setItem("birthdate", res.birthdate);
-                sessionStorage.setItem("email", res.email);
-                sessionStorage.setItem("age", res.age);
                 console.log(sessionStorage);
+                this.router.navigateByUrl('/').then(() => {
+                  window.location.reload();
+                });
         }},
         (err: HttpErrorResponse) => {
         console.log(err.error);
         });
   }
 
-  logout() {
-      sessionStorage.removeItem("username");
-      sessionStorage.removeItem("birthdate");
-      sessionStorage.removeItem("email");
-      sessionStorage.removeItem("age");
-      console.log(sessionStorage);
-  }
+  
 
   forgot(){
     alert("well, sucks to be you")

@@ -27,40 +27,47 @@ const port = process.env.PORT || 3000;
 listener.listen(server, port);
 socket.connect(io, port)
 
-class User {
-    constructor(username, birthdate, age, email, password, valid) {
-        this.username = username
-        this.birthdate = birthdate
-        this.age = age
-        this.email = email
-        this.password = password
-        this.valid = valid
-    }
-}
 
 
 
 app.post('/api/auth', function(req,res){ 
-    let users = [new User("jett", "31/01/2000", 21, "jett@email.com", "1234", true), new User("callum", "05/05/1900", 121, "callum@email.com", "1234", true), new User("ryan", "12/12/1921", 100, "ryan@email.com", "1234", true)]
+    let users = [
+        {
+            "username": "jett",
+            "password": "1234",
+            "email": "jett@email.com",
+            "id": "1"
+        },
+        {
+            "username": "john",
+            "password": "1234",
+            "email": "john@email.com",
+            "id": "2"
+        },
+        {
+            "username": "jeff",
+            "password": "1234",
+            "email": "jeff@email.com",
+            "id": "3"
+        }
+    ]
     if (!req.body) {
         return res.sendStatus(400)
     }
     var user = {};
-    user.name = "";
-    user.birthdate = "";
-    user.age = 0;
-    user.email = "";
+    user.username = "";
     user.password = "";
+    user.email = "";
     user.valid = false;
     
     for (let i=0; i<users.length;i++){
-        if (req.body.email == users[i].email && req.body.upwd == users[i].pwd){
-            user.name = users[i].name;
-            user.birthdate = users[i].birthdate;
-            user.age = users[i].age;
+        
+        if (req.body.email == users[i].email && req.body.password == users[i].password){
+            
+            user.username = users[i].username;
             user.email = users[i].email;
             user.password = users[i].password;
-            user.valid = users[i].valid;
+            user.valid = true;
         }
     }
     if (user.valid == true){
