@@ -42,9 +42,11 @@ export class ChatComponent implements OnInit {
   }
 
   join(){
+     
     this.socketService.joingroup(this.groupslist);
     this.socketService.reqnumusers(this.groupslist);
     this.socketService.getnumusers((res)=>{this.numusers = res});
+    console.log("this.groupslist", this.groupslist, "this.numusers", this.numusers)
     
   }
 

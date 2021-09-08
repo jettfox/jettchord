@@ -35,10 +35,12 @@ export class SocketService {
   }
 
   reqnumusers(se1group){
+    console.log("reqnumusers", se1group)
     this.socket.emit('numusers', se1group);
   }
 
   getnumusers(next){
+    console.log("getnumusers", next)
     this.socket.on('numusers', res=>next(res));
   }
 
@@ -60,7 +62,6 @@ export class SocketService {
   }
 
   getMessage(next){
-    console.log("mesag", next)
     this.socket.on('message', (message)=>next(message));
   }
 }

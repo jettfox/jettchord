@@ -6,11 +6,12 @@ module.exports = {
         
         const chat = io
         
-        io.on('connection', (socket) => {
+        chat.on('connection', (socket) => {
             console.log("client connected")
             socket.on('message', (message)=>{
-                console.log('message', message)
+                console.log(message, socketGroup, socket.id)
                 for (let i=0; i<socketGroup.length; i++){
+                    console.log('server', socketGroup[i][0])
                     if (socketGroup[i][0] == socket.id){
                         chat.to(socketGroup[i][1]).emit('message', message);
                     }
@@ -24,23 +25,30 @@ module.exports = {
             });
 
             socket.on('grouplist', (m)=>{
+                console.log('grouplist', m)
                 chat.emit('grouplist', JSON.stringify(groups));
                 console.log(groups)
             })
 
             socket.on('numusers', (group)=>{
+                console.log('numusers', group)
                 var usercount = 0;
                 for (let i=0; i<socketGroupnum.length; i++){
+                    
                     if(socketGroupnum[i][0] == group){
+                        
                         usercount = socketGroupnum[i][1];
+                        console.log('usercount', usercount)
                     }
                 }
                 chat.in(group).emit('numusers', usercount);
             });
 
             socket.on('joinGroup', (group)=>{
+                console.log("join group", group)
                 if (groups.includes(group)){
                     socket.join(group, ()=>{
+                        console.log("join group", group)
                         var ingroupSocketarray = false
                         for (let i=0; i<socketGroup.length; i++){
                             if (socketGroup[i][0]==socket.id){
