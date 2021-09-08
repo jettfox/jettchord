@@ -35,12 +35,10 @@ export class SocketService {
   }
 
   reqnumusers(se1channel){
-    console.log("reqnumusers", se1channel)
     this.socket.emit('numusers', se1channel);
   }
 
   getnumusers(next){
-    console.log("getnumusers", next)
     this.socket.on('numusers', res=>next(res));
   }
 
@@ -62,5 +60,13 @@ export class SocketService {
 
   getMessage(next){
     this.socket.on('message', (message)=>next(message));
+  }
+
+  reqAllMessages(se1channel){
+    this.socket.emit('allmessages', se1channel);
+  }
+
+  getAllMessages(next){
+    this.socket.on('allmessages', (res:[])=>next(res));
   }
 }

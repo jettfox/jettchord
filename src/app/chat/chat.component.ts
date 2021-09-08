@@ -21,6 +21,7 @@ export class ChatComponent implements OnInit {
   isinChannel= false;
   newChannel:string="";
   numusers:number=0;
+  allMessages:{}[] = [];
 
   constructor(private socketService:SocketService) { }
 
@@ -29,10 +30,13 @@ export class ChatComponent implements OnInit {
     this.socketService.getMessage((m)=>{this.messages.push(m)});
     this.socketService.reqchannelList();
     this.socketService.getchannelList((msg)=>{this.channels = JSON.parse(msg)});
+    this.socketService.reqAllMessages(this.channelslist);
+    this.socketService.getAllMessages((res)=>{this.allMessages = res});
     this.socketService.notice((msg)=>{this.channelnotice = msg})
     this.socketService.joined((msg)=>{this.currentchannel = msg
       if(this.currentchannel != ""){
         this.isinChannel = true;
+        
       } else {
         this.isinChannel = false;
       }
@@ -41,12 +45,13 @@ export class ChatComponent implements OnInit {
   }
 
   join(){
-     
     this.socketService.joinchannel(this.channelslist);
+
     this.socketService.reqnumusers(this.channelslist);
     this.socketService.getnumusers((res)=>{this.numusers = res});
-    console.log("this.channelslist", this.channelslist, "this.numusers", this.numusers)
-    
+
+    this.socketService.reqAllMessages(this.channelslist);
+    this.socketService.getAllMessages((res)=>{this.allMessages = res});
   }
 
   clearnotice(){
@@ -55,6 +60,8 @@ export class ChatComponent implements OnInit {
 
   leavechannel(){
     this.socketService.leavechannel(this.currentchannel);
+    this.socketService.reqAllMessages(this.currentchannel);
+    this.socketService.getAllMessages((res)=>{this.allMessages = res});
     this.socketService.reqnumusers(this.currentchannel);
     this.socketService.getnumusers((res)=>{this.numusers = res});
     this.channelslist = null;
@@ -63,6 +70,7 @@ export class ChatComponent implements OnInit {
     this.numusers = 0;
     this.channelnotice = ""
     this.messages = [];
+    this.allMessages = []
   }
   
   createchannel(){
@@ -82,6 +90,8 @@ export class ChatComponent implements OnInit {
     } else {
       console.log('No Message')
     }
+    this.socketService.reqAllMessages(this.channelslist);
+    this.socketService.getAllMessages((res)=>{this.allMessages = res});
   }
 
 }

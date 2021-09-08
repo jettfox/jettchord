@@ -7,7 +7,6 @@ module.exports = {
         var socketChannelnum = [];
         var messages = [];
         messages = JSON.parse(fs.readFileSync('./data/messages.json', 'utf8')); 
-        console.log(messages)
         
         const chat = io.of('/chat');
         
@@ -15,7 +14,6 @@ module.exports = {
             console.log("client connected")
             socket.on('message', (message)=>{
                 for (let i=0; i<socketChannel.length; i++){
-                    console.log('server', socketChannel[i][0])
                     if (socketChannel[i][0] == socket.id){
                         chat.to(socketChannel[i][1]).emit('message', message);
                         messages.push(message);
@@ -49,6 +47,17 @@ module.exports = {
                     }
                 }
                 chat.in(channel).emit('numusers', usercount);
+            });
+
+
+            socket.on('allmessages', (channel)=>{
+                var channelmessages = [];
+                for (let i=0; i<messages.length; i++){
+                    if (messages[i].channel == channel){
+                        channelmessages.push(messages[i])
+                    }
+                }
+                chat.in(channel).emit('allmessages', channelmessages);
             });
 
             socket.on('joinChannel', (channel)=>{

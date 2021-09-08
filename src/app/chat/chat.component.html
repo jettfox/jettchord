@@ -30,6 +30,11 @@
         
             </div>
             <button *ngIf="isinChannel" (click)="chat()" class="btn btn-primary">Chat</button> &nbsp;
+            <ul>
+            <li *ngFor="let message of allMessages">
+                {{message.message}} - {{message.user}}
+            </li>
+        </ul>
         </form>
         
     </div>
