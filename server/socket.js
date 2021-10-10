@@ -1,5 +1,51 @@
 
 var fs = require('fs');
+const  mongoose  = require("mongoose");
+const  Schema  =  mongoose.Schema;
+
+const  chatSchema  =  new Schema(
+    {
+        groups:[
+            {
+                name: String,
+                channels: [
+                    {
+                        name: String,
+                        messages: [
+                            {
+                                user: String,
+                                message: String
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+);
+const  userSchema  =  new Schema(
+    {
+        users:[
+            {
+                username: String,
+                email: String,
+                password: String,
+                profile: String
+            }
+        ]
+    }
+);
+const  rolesSchema  =  new Schema(
+    {
+        roles:[
+            {
+                user: String,
+                group: String,
+                role: String
+            }
+        ]
+    }
+);
 module.exports = {
     connect: function(io, PORT){
         var channels = JSON.parse(fs.readFileSync('./data/channels.json', 'utf8')); 
