@@ -1,51 +1,18 @@
+//Models
+const  Chat  = require("./models/Chat");
+const  Channel  = require("./models/Channel");
+const  Group  = require("./models/Group");
+const  Role  = require("./models/Role");
+const  User  = require("./models/User");
 
-var fs = require('fs');
-const  mongoose  = require("mongoose");
-const  Schema  =  mongoose.Schema;
+//Connections
+const  connectChannel  = require("./connections/ChannelConnection");
+const  connectGroup  = require("./connections/ChannelConnection");
+const  connectRole  = require("./connections/ChannelConnection");
+const  connectUser  = require("./connections/ChannelConnection");
+const  connectChat  = require("./connections/ChannelConnection");
 
-const  chatSchema  =  new Schema(
-    {
-        groups:[
-            {
-                name: String,
-                channels: [
-                    {
-                        name: String,
-                        messages: [
-                            {
-                                user: String,
-                                message: String
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-);
-const  userSchema  =  new Schema(
-    {
-        users:[
-            {
-                username: String,
-                email: String,
-                password: String,
-                profile: String
-            }
-        ]
-    }
-);
-const  rolesSchema  =  new Schema(
-    {
-        roles:[
-            {
-                user: String,
-                group: String,
-                role: String
-            }
-        ]
-    }
-);
+
 module.exports = {
     connect: function(io, PORT){
         var channels = JSON.parse(fs.readFileSync('./data/channels.json', 'utf8')); 
