@@ -1,6 +1,6 @@
 const  mongoose  = require("mongoose");
 const  Schema  =  mongoose.Schema;
-const  chatSchema  =  new Schema(
+const  channelSchema  =  new Schema(
     {
         name: {
             type:String
@@ -10,5 +10,5 @@ const  chatSchema  =  new Schema(
         }
 });
 
-let  Chat  =  mongoose.model("Chat", chatSchema);
-module.exports  =  Chat;
+let  Group  =  mongoose.model("Channel", channelSchema);
+module.exports  =  Group;

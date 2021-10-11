@@ -62,8 +62,8 @@ export class SocketService {
     this.socket.on('message', (message)=>next(message));
   }
 
-  reqAllMessages(se1channel){
-    this.socket.emit('allmessages', se1channel);
+  reqAllMessages(channel){
+    this.socket.emit('allmessages', channel);
   }
 
   getAllMessages(next){

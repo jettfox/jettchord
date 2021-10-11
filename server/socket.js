@@ -12,115 +12,108 @@ const  connectRole  = require("./connections/ChannelConnection");
 const  connectUser  = require("./connections/ChannelConnection");
 const  connectChat  = require("./connections/ChannelConnection");
 
+fs = require('fs');
+
 
 module.exports = {
     connect: function(io, PORT){
-        var channels = JSON.parse(fs.readFileSync('./data/channels.json', 'utf8')); 
+        var groupName = "Group1"
+        var channels = [];
+        var messages = [];
         var socketChannel = [];
         var socketChannelnum = [];
-        var messages = [];
-        messages = JSON.parse(fs.readFileSync('./data/messages.json', 'utf8')); 
+        var isOnline = []
+        
         
         const chat = io.of('/chat');
         
         chat.on('connection', (socket) => {
             console.log("client connected")
             socket.on('message', (message)=>{
-                for (let i=0; i<socketChannel.length; i++){
-                    if (socketChannel[i][0] == socket.id){
-                        chat.to(socketChannel[i][1]).emit('message', message);
-                        messages.push(message);
-                        fs.writeFile('./data/messages.json', JSON.stringify(messages),'utf8', function(err){
-                            if (err) throw err;
+                for (let i=0; i<isOnline.length; i++){
+                    if (isOnline[i].id == socket.id){
+                        connectChat.then(db  =>  {
+                            let  chatMessage  =  new Chat({ user: message.user, message: message.message, channel: message.channel, group: "Group1"});
+                            chatMessage.save();
+                            socket.to(JSON.stringify({ name: chatMessage.channel, group: chatMessage.group })).emit('message', chatMessage);
                         });
                     }
                 }
             });
             socket.on('newchannel', (newchannel)=>{
-                if (channels.indexOf(newchannel) == -1){
-                    channels.push(newchannel);
-                    fs.writeFile('./data/channels.json', JSON.stringify(channels),'utf8', function(err){
-                        if (err) throw err;
-                    });
-                    chat.emit('channellist', JSON.stringify(channels));
-                }
+                connectChannel.then(db  =>  {
+                    let  chatChannel  =  new Channel({ name: newchannel.name, group: "Group1"});
+                    chatChannel.save();
+                });
+                connectChannel.then(db  =>  {
+                    Channel.find({ 'group': groupName }).then(res  =>  {
+                        chat.emit('channellist', res);
+                })});
             });
 
             socket.on('channellist', (m)=>{
-                chat.emit('channellist', JSON.stringify(channels));
+                connectChannel.then(db  =>  {
+                    Channel.find({ 'group': groupName }).then(res  =>  {
+                        channels = res
+                        chat.emit('channellist', res);
+                })});
+                
             })
 
-            socket.on('numusers', (channel)=>{
-                var usercount = 0;
-                for (let i=0; i<socketChannelnum.length; i++){
-                    
-                    if(socketChannelnum[i][0] == channel){
-                        
-                        usercount = socketChannelnum[i][1];
-                    }
-                }
-                chat.in(channel).emit('numusers', usercount);
-            });
-
-
+            
             socket.on('allmessages', (channel)=>{
-                var channelmessages = [];
-                for (let i=0; i<messages.length; i++){
-                    if (messages[i].channel == channel){
-                        channelmessages.push(messages[i])
-                    }
-                }
-                chat.in(channel).emit('allmessages', channelmessages);
+                connectChat.then(db  =>  {
+                    Chat.find({  'channel': channel.name, 'group': channel.group }).then(res  =>  {
+                        chat.to(JSON.stringify({ name: channel.name, group: channel.group })).emit('allmessages', res);
+                })});
             });
 
             socket.on('joinChannel', (channel)=>{
-
-                if (channels.includes(channel)){
-                    socket.join(channel)
-                    var inchannelSocketarray = false
-                    for (let i=0; i<socketChannel.length; i++){
-                        if (socketChannel[i][0]==socket.id){
-                            socketChannelnum[i][1] = channel;
-                            inchannel = true;
-                        }
-                    }
-
-                    if (inchannelSocketarray == false){
-                        socketChannel.push([socket.id, channel]);
-                        var haschannelnum = false;
-                        for (let j=0; j<socketChannelnum.length; j++){
-                            if (socketChannelnum[j][0]==channel){
-                                socketChannelnum[j][1] = socketChannelnum[j][1] +1;
-                                haschannelnum = true;
+                connectChannel.then(db  =>  {
+                    Channel.find({ 'name': channel.name, 'group': channel.group }).then(res  =>  {
+                        isOnline.push({id: socket.id, channel: { name: res[0].name, group: res[0].group }})
+                        socket.join(JSON.stringify({ name: res[0].name, group: res[0].group }))
+                        var usercount = 0;
+                        for (let i=0; i<isOnline.length; i++){
+                            if (isOnline[i].channel.name == channel.name && isOnline[i].channel.group == channel.group){
+                                usercount +=1
                             }
                         }
-
-                        if (haschannelnum == false){
-                            socketChannelnum.push([channel, 1]);
-                        }
-                    }
-                    chat.in(channel).emit("notice", "A new user has joined");
-                    return chat.in(channel).emit("joined", channel);
-                }
+                        chat.to(JSON.stringify({ name: channel.name, group: channel.group })).emit('numusers', usercount);
+                        
+                        chat.in(JSON.stringify({ name: channel.name, group: channel.group })).emit("notice", "A new user has joined");
+                        return socket.emit('joined',{ name: channel.name, group: channel.group });
+                })});
+                
             });
 
             socket.on("leaveChannel", (channel)=>{
+                for (let i=0; i<isOnline.length; i++){
+                    if (isOnline[i].id == socket.id){
+                        isOnline.splice(i, 1);
+                        socket.leave(JSON.stringify({ name: channel.name, group: channel.group }));
+                        chat.to(JSON.stringify({ name: channel.name, group: channel.group })).emit("notice", "A user has left");
+                    }
+                }
+                var usercount = 0;
+                for (let i=0; i<isOnline.length; i++){
+                    if (isOnline[i].channel.name == channel.name && isOnline[i].channel.group == channel.group){
+                        usercount +=1
+                    }
+                }
+                chat.to(JSON.stringify({ name: channel.name, group: channel.group })).emit('numusers', usercount);
+            });
 
-                for (let i=0; i<socketChannel.length; i++){
-                    if (socketChannel[i][0] == socket.id){
-                        socketChannel.splice(i, 1);
-                        socket.leave(channel);
-                        chat.to(channel).emit("notice", "A user has left");
+
+            socket.on('numusers', (channel)=>{
+               // console.log(isOnline)
+                var usercount = 0;
+                for (let i=0; i<isOnline.length; i++){
+                    if (isOnline[i].channel.name == channel.name && isOnline[i].channel.group == channel.group){
+                        usercount +=1
                     }
                 }
-                for (let j=0; j<socketChannelnum.length; j++){
-                    if (socketChannelnum[j][0] == channel){
-                        socketChannelnum[j][1] = socketChannelnum[j][1] -1;
-                        if (socketChannelnum[j][1]==0){
-                            socketChannelnum.splice(j,1)
-                        }
-                    }
-                }
+                chat.to(JSON.stringify({ name: channel.name, group: channel.group })).emit('numusers', usercount);
             });
 
             socket.on("disconnect", ()=>{

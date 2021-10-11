@@ -4,24 +4,18 @@
         Groups will be added later
         <form>
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="new channel" aria-label="new channel" aria-describedby="basic-addon2" [(ngModel)]="newChannel" name="newChannel" id="newChannel">
+                <input type="text" class="form-control" placeholder="new channel" aria-label="new channel" aria-describedby="basic-addon2" [(ngModel)]="newChannel.name" name="newChannel" id="newChannel">
                 <div class="input-group-append">
                     <button class="btn btn-outline-primary" type="button" (click)="createchannel()">Create</button>
                 </div>
             </div><br><br>
             <div class="input-group" *ngIf="!isinChannel">
-                <select class="custom-select" id="inputGroupSelect04" [(ngModel)] = "channelslist" name="channelslist">
-                    <option [ngValue]="null">Select Channel</option>
-                    <option *ngFor="let channel of channels">
-                        {{channel}}
-                    </option>
-                </select>
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button"  (click)="join()">Join</button>
+                <div class="row">
+                    <button class="btn btn-outline-primary" type="button" *ngFor="let channel of channels" (click)="join(channel)">{{channel.name}}</button>
                 </div>
             </div>
             <div *ngIf="isinChannel">
-                <button  (click)="leavechannel()" class="btn btn-danger">Leave {{channelslist}}</button>
+                <button  (click)="leavechannel()" class="btn btn-danger">Leave {{channelslist.name}}</button>
             </div>
             
         </form>
@@ -50,7 +44,7 @@
         <ul class="list-group">
             <li class="list-group-item active">Current Channel</li>
             <li class="list-group-item">
-                {{currentchannel}}
+                {{currentchannel.name}}
             </li>
         </ul>
         <br>

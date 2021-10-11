@@ -1,11 +1,11 @@
 const  mongoose  = require("mongoose");
 const  Schema  =  mongoose.Schema;
-const  chatSchema  =  new Schema(
+const  groupSchema  =  new Schema(
     {
         name: {
             type:String
         }
 });
 
-let  Chat  =  mongoose.model("Chat", chatSchema);
-module.exports  =  Chat;
+let  Group  =  mongoose.model("Group", groupSchema);
+module.exports  =  Group;
