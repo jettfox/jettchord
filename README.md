@@ -1,10 +1,20 @@
 # Jettchord
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.3.
+This is my second assignment which is a socket based angular project with a node back end and mongodb database.
+It acts in a similar manner to the popular messaging application discord
 
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+## Node Serve
+
+Run `node server.js` in the server folder to get it running.
+
+## Database
+
+Run `mongo` in your terminal to check the data.
+
 
 ## Code scaffolding
 
