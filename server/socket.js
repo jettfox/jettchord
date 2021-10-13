@@ -6,11 +6,8 @@ const  Role  = require("./models/Role");
 const  User  = require("./models/User");
 
 //Connections
-const  connectChannel  = require("./connections/ChannelConnection");
-const  connectGroup  = require("./connections/ChannelConnection");
-const  connectRole  = require("./connections/ChannelConnection");
-const  connectUser  = require("./connections/ChannelConnection");
-const  connectChat  = require("./connections/ChannelConnection");
+const  connectDB  = require("./connections/JettChordConnection");
+const { exists } = require("./models/Chat");
 
 fs = require('fs');
 
@@ -29,47 +26,172 @@ module.exports = {
         
         chat.on('connection', (socket) => {
             console.log("client connected")
-            socket.on('message', (message)=>{
-                for (let i=0; i<isOnline.length; i++){
-                    if (isOnline[i].id == socket.id){
-                        connectChat.then(db  =>  {
-                            let  chatMessage  =  new Chat({ user: message.user, message: message.message, channel: message.channel, group: "Group1"});
-                            chatMessage.save();
-                            socket.to(JSON.stringify({ name: chatMessage.channel, group: chatMessage.group })).emit('message', chatMessage);
-                        });
+
+            //This prefills the data if it is empty
+            connectDB.then(db  =>  {
+                User.find({}).then(res  =>  {
+                    if (res.length == 0){
+                        let  group1  =  new Group({ name: "Group1"});
+                        group1.save();
+                        let  group2  =  new Group({ name: "Group2"});
+                        group2.save();
+                        let  group3  =  new Group({ name: "Group3"});
+                        group3.save();
+                        let  group4  =  new Group({ name: "Group4"});
+                        group4.save();
+
+                        let  user1  =  new User({username: "Jett", email: "jett@email.com", password: "1234", profile: "none"});
+                        user1.save();
+                        let  user2  =  new User({username: "John", email: "john@email.com", password: "1234", profile: "none"});
+                        user2.save();
+                        let  user3  =  new User({username: "Dave", email: "dave@email.com", password: "1234", profile: "none"});
+                        user3.save();
+                        let  user4  =  new User({username: "Dave", email: "fred@email.com", password: "1234", profile: "none"});
+                        user4.save();
+
+                        let  role1  =  new Role({user: "Jett", group: "Group1", role: "user"});
+                        role1.save();
+                        let  role2  =  new Role({user: "Jett", group: "Group2", role: "user"});
+                        role2.save();
+                        let  role3  =  new Role({user: "John", group: "Group1", role: "user"});
+                        role3.save();
+                        let  role4  =  new Role({user: "John", group: "Group2", role: "user"});
+                        role4.save();
                     }
-                }
-            });
-            socket.on('newchannel', (newchannel)=>{
-                connectChannel.then(db  =>  {
-                    let  chatChannel  =  new Channel({ name: newchannel.name, group: "Group1"});
-                    chatChannel.save();
+                })
+            })
+
+            socket.on('message', (message)=>{
+                connectDB.then(db  =>  {
+                            
+                    let  chatMessage  =  new Chat({ user: message.user, message: message.message, channel: message.channel, group: message.group});
+                    chatMessage.save();
+                    socket.to(JSON.stringify({ name: chatMessage.channel, group: chatMessage.group })).emit('message', chatMessage);
                 });
-                connectChannel.then(db  =>  {
-                    Channel.find({ 'group': groupName }).then(res  =>  {
-                        chat.emit('channellist', res);
+                connectDB.then(db  =>  {
+                    Chat.find({  'channel': message.channel, 'group': message.group }).then(res  =>  {
+                        chat.to(JSON.stringify({ name: message.name, group: message.group })).emit('allmessages', res);
                 })});
             });
 
-            socket.on('channellist', (m)=>{
-                connectChannel.then(db  =>  {
-                    Channel.find({ 'group': groupName }).then(res  =>  {
-                        channels = res
+
+            socket.on('newchannel', (newchannel)=>{
+                exists = false
+                connectDB.then(db  =>  {
+                    Channel.find({ 'name': newchannel.name }).then(res  =>  {
+                        if (res.length != 0){
+                            exists = true
+                        } else {
+                            exists = false
+                        }
+                })});
+                if (exists == false){
+                    connectDB.then(db  =>  {
+                        let  chatChannel  =  new Channel({ name: newchannel.name, group: newchannel.group});
+                        chatChannel.save();
+                    });
+                    connectDB.then(db  =>  {
+                        Channel.find({ 'group': newchannel.group }).then(res  =>  {
+                            chat.emit('channellist', res);
+                    })});
+                }
+                
+            });
+
+            socket.on('isAdmin', (username)=>{
+                connectDB.then(db  =>  {
+                    Role.find({ 'user': username, 'role': 'admin' }).then(res  =>  {
+                        if (res.length == 1){
+                            chat.emit('isAdmin', true);
+                        } else {
+                            chat.emit('isAdmin', false);
+                        }
+                        
+                })});
+                
+            })
+
+            socket.on('channellist', (group)=>{
+                connectDB.then(db  =>  {
+                    Channel.find({ 'group': group }).then(res  =>  {
                         chat.emit('channellist', res);
                 })});
                 
             })
 
+            socket.on('users', (msg)=>{
+                users = []
+                connectDB.then(db  =>  {
+                    User.find({}).then(res  =>  {
+                        for (i in res){
+                            users.push(res[i].username)
+                        }
+                        console.log(users)
+                        chat.emit('users', users);
+                })});
+                
+            })
+
+            socket.on('rolesList', (msg)=>{
+                userList = []
+                connectDB.then(db  =>  {
+                    User.find({}).then(res  =>  {
+                        for (i in res){
+                            userList.push({username: res[i].username, groups: []})
+                        }
+                    })
+                    Role.find({}).then(res  =>  {
+                        for (i in userList){
+                            for (j in res){
+                                if (res[j].user == userList[i].username){
+                                    userList[i].groups.push(res[j].group)
+                                }
+                            }
+                        }
+                        console.log(userList)
+                        chat.emit('rolesList', userList);
+                })});
+                
+            })
+            socket.on('allGroups', (msg)=>{
+                connectDB.then(db  =>  {
+                    Group.find({}).then(res  =>  {
+                        console.log(res)
+                        chat.emit('allGroups', res);
+                })});
+                
+            })
+
+            socket.on('grouplist', (username)=>{
+                grouplist = []
+                connectDB.then(db  =>  {
+                    Role.find({user: username}).then(res  =>  {
+                        for (num in res){
+                            grouplist.push(res[num].group)
+                        }
+                        chat.emit('grouplist', grouplist);
+                })});
+                
+            })
+
+            socket.on('joinGroup', (group)=>{
+                connectDB.then(db  =>  {
+                    Channel.find({'group': group}).then(res  =>  {
+                        chat.emit('channellist', res);
+                    })
+                })
+            })
+
             
             socket.on('allmessages', (channel)=>{
-                connectChat.then(db  =>  {
+                connectDB.then(db  =>  {
                     Chat.find({  'channel': channel.name, 'group': channel.group }).then(res  =>  {
                         chat.to(JSON.stringify({ name: channel.name, group: channel.group })).emit('allmessages', res);
                 })});
             });
 
             socket.on('joinChannel', (channel)=>{
-                connectChannel.then(db  =>  {
+                connectDB.then(db  =>  {
                     Channel.find({ 'name': channel.name, 'group': channel.group }).then(res  =>  {
                         isOnline.push({id: socket.id, channel: { name: res[0].name, group: res[0].group }})
                         socket.join(JSON.stringify({ name: res[0].name, group: res[0].group }))
@@ -104,6 +226,19 @@ module.exports = {
                 chat.to(JSON.stringify({ name: channel.name, group: channel.group })).emit('numusers', usercount);
             });
 
+            socket.on('login', (user)=>{
+                connectDB.then(db  =>  {
+                    User.find({'email': user.email, 'password': user.password}).then(res  =>  {
+                        if (res.length == 1){
+                            socket.emit('login', {username: res[0].username, valid: "true"});
+                        } else {
+                            socket.emit('login', {username: "none", valid: "false"});
+                        }
+                        
+                    })
+                });
+            });
+
 
             socket.on('numusers', (channel)=>{
                // console.log(isOnline)
@@ -117,15 +252,12 @@ module.exports = {
             });
 
             socket.on("disconnect", ()=>{
-                //chat.emit('disconnect');
-                for (let i=0; i<socketChannel.length; i++){
-                    if (socketChannel[i][0] == socket.id){
-                        socketChannel.splice(i, 1);
-                    }
-                }
-                for (let j=0; j<socketChannelnum.length; j++){
-                    if (socketChannelnum[j][0]==socket.channel){
-                        socketChannelnum[j][1] = socketChannelnum[j][1] -1;
+                for (let i=0; i<isOnline.length; i++){
+                    if (isOnline[i].id == socket.id){
+                        
+                        socket.leave(JSON.stringify({ name: isOnline[i].channel.name, group: isOnline[i].channel.group }));
+                        chat.to(JSON.stringify({ name: isOnline[i].channel.name, group: isOnline[i].channel.group })).emit("notice", "A user has left");
+                        isOnline.splice(i, 1);
                     }
                 }
                 console.log("Client disconnected");

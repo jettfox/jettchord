@@ -10,5 +10,5 @@ const  channelSchema  =  new Schema(
         }
 });
 
-let  Group  =  mongoose.model("Channel", channelSchema);
-module.exports  =  Group;
+let  Channel  =  mongoose.model("Channel", channelSchema);
+module.exports  =  Channel;
