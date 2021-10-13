@@ -30,23 +30,19 @@ export class AccountComponent implements OnInit {
       this.socketService.reqIsAdmin(this.username);
       this.socketService.getIsAdmin(
         (res)=>{this.isAdmin = res
-          console.log(this.isAdmin)
         if (this.isAdmin == true){
           
           this.socketService.reqUsers();
           this.socketService.getUsers((res)=>{this.users = res
-            this.haveUsers = true
-            console.log(this.users)})
+            this.haveUsers = true})
           
           this.socketService.reqAllGroups();
           this.socketService.getAllGroups((res)=>{this.groups = res
-            this.haveGroups = true
-            console.log(this.groups)})
+            this.haveGroups = true})
           
           this.socketService.reqRoles();
           this.socketService.getRoles((res)=>{this.roles = res
-            this.haveRoles = true
-            console.log(this.roles)})
+            this.haveRoles = true})
         }})
 
     }
@@ -56,9 +52,7 @@ export class AccountComponent implements OnInit {
     this.socketService.reqAddRole({user: alluser, group: rolegroup});
     this.socketService.reqRoles();
     this.socketService.getRoles((res)=>{this.roles = res
-      this.haveRoles = true
-      console.log(this.roles)})
-    console.log(alluser, rolegroup)
+      this.haveRoles = true})
 
   }
 

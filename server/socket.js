@@ -110,7 +110,6 @@ module.exports = {
             socket.on('isAdmin', (username)=>{
                 connectDB.then(db  =>  {
                     Role.find({ 'user': username, 'role': 'admin' }).then(res  =>  {
-                        console.log(res)
                         if (res.length == 1){
                             socket.join("admin")
                             chat.to("admin").emit('isAdmin', true);
@@ -135,14 +134,12 @@ module.exports = {
                         for (i in res){
                             users.push(res[i].username)
                         }
-                        console.log(users)
                         chat.emit('users', users);
                 })});
                 
             })
 
             socket.on('rolesList', (msg)=>{
-                console.log("roles")
                 var groupList = []
                 connectDB.then(db  =>  {
                     Group.find({}).then(res  =>  {
@@ -161,7 +158,6 @@ module.exports = {
                                 }
                             }
                         }
-                        console.log(groupList)
                         chat.emit('rolesList', groupList);
                 })});
                 
@@ -169,7 +165,6 @@ module.exports = {
             socket.on('allGroups', (msg)=>{
                 connectDB.then(db  =>  {
                     Group.find({}).then(res  =>  {
-                        console.log(res)
                         chat.emit('allGroups', res);
                 })});
                 
@@ -256,7 +251,6 @@ module.exports = {
 
 
             socket.on('numusers', (channel)=>{
-               // console.log(isOnline)
                 var usercount = 0;
                 for (let i=0; i<isOnline.length; i++){
                     if (isOnline[i].channel.name == channel.name && isOnline[i].channel.group == channel.group){

@@ -30,7 +30,6 @@ export class LoginComponent implements OnInit {
     if (this.email != "" && this.password != ""){
       this.socketService.initSocket();
       this.socketService.login({email: this.email, password: this.password});
-      console.log(this.user)
       
       this.socketService.confirm(
         (res)=>{this.user = res
@@ -49,7 +48,6 @@ export class LoginComponent implements OnInit {
             }
         }
       );
-      console.log(this.user)
       
         
     } else {

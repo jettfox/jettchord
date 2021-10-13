@@ -33,25 +33,19 @@ export class ChatComponent implements OnInit {
     this.newChannel.group = this.group
     this.socketService.initSocket();
     this.socketService.reqGroupList(sessionStorage.getItem("username"))
-    this.socketService.getGroupList((res)=>{this.groups = res
-    console.log(this.groups)});
-    console.log("new messages", this.messages)
+    this.socketService.getGroupList((res)=>{this.groups = res});
     this.socketService.reqchannelList(this.group);
     this.socketService.getchannelList((msg)=>{this.channels = msg});
     this.socketService.reqAllMessages(this.channelslist);
-    console.log(this.channelslist)
     this.socketService.getAllMessages((msg)=>{this.allMessages = msg});
     this.socketService.notice((msg)=>{this.channelnotice = msg})
     this.socketService.joined((msg)=>{this.currentchannel = msg
       if(this.currentchannel != {name:"", group:this.group}){
-        console.log("true")
         this.isinChannel = true;
       } else {
         this.isinChannel = false;
-        console.log("false")
       }
     });
-    console.log("current channel",this.currentchannel)
 
   }
 
@@ -102,7 +96,6 @@ export class ChatComponent implements OnInit {
     this.channelslist.group = this.group
     this.currentchannel.group = this.group
     this.newChannel.group = this.group
-    console.log("channel list", this.channelslist)
     this.socketService.createChannel(this.newChannel);
     this.socketService.reqchannelList(this.group);
     this.socketService.getchannelList((msg)=>{this.channels = msg});
@@ -120,9 +113,7 @@ export class ChatComponent implements OnInit {
       console.log('No Message')
     }
     this.socketService.reqAllMessages(this.channelslist);
-    console.log(this.channelslist)
     this.socketService.getAllMessages((msg)=>{this.allMessages = msg});
-    console.log(this.allMessages)
   }
 
 }

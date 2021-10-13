@@ -18,7 +18,6 @@ export class AppComponent implements OnInit {
 
   logout() {
     sessionStorage.removeItem("username");
-    console.log(sessionStorage);
     this.loggedIn = false;
   }
 }
