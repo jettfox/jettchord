@@ -5,10 +5,6 @@ import { Router } from '@angular/router';
 import{HttpClient, HttpErrorResponse} from '@angular/common/http';​
 import * as e from 'cors';
 
-interface User {
-  username:string;
-  valid:boolean;
-}
 
 @Component({
   selector: 'app-login',
@@ -18,7 +14,6 @@ interface User {
 
 export class LoginComponent implements OnInit {
 
-  url:string = 'http://localhost:3000/api/auth';
   email = "";
   password = "";
   formData = {};
@@ -34,8 +29,6 @@ export class LoginComponent implements OnInit {
   Submit() { 
     if (this.email != "" && this.password != ""){
       this.socketService.initSocket();
-      //this.socketService.initSocket();
-      
       this.socketService.login({email: this.email, password: this.password});
       console.log(this.user)
       

@@ -1,11 +1,17 @@
 <div class="row">
-    <div class="col-3">
-        <div class="row">
+    
+    <div class="col-3 ">
+        <br>
+        <div class="row" *ngIf="!isinChannel">
             <button class="btn btn-outline-primary btn-block" type="button" *ngFor="let group of groups" (click)="joingroup(group)">{{group}}</button>
         </div>
     </div>
     <div class="col-3">
-        {{group}}
+        <br>
+        <li class="list-group-item active" *ngIf="group != ''">
+            {{group}}
+        </li>
+        
         <form>
             <div *ngIf="group != ''">
                 <div class="input-group mb-3" *ngIf="!isinChannel">
@@ -13,7 +19,7 @@
                     <div class="input-group-append">
                         <button class="btn btn-outline-primary" type="button" (click)="createchannel()">Create</button>
                     </div>
-                </div><br><br>
+                </div><br>
                 <div  *ngIf="!isinChannel">
                     <div class="row">
                         <button class="btn btn-outline-primary btn-block" type="button" *ngFor="let channel of channels" (click)="join(channel)">{{channel.name}}</button>

@@ -46,17 +46,19 @@ module.exports = {
                         user2.save();
                         let  user3  =  new User({username: "Dave", email: "dave@email.com", password: "1234", profile: "none"});
                         user3.save();
-                        let  user4  =  new User({username: "Dave", email: "fred@email.com", password: "1234", profile: "none"});
+                        let  user4  =  new User({username: "Fred", email: "fred@email.com", password: "1234", profile: "none"});
                         user4.save();
 
                         let  role1  =  new Role({user: "Jett", group: "Group1", role: "user"});
                         role1.save();
                         let  role2  =  new Role({user: "Jett", group: "Group2", role: "user"});
                         role2.save();
-                        let  role3  =  new Role({user: "John", group: "Group1", role: "user"});
+                        let  role3  =  new Role({user: "Jett", group: "All", role: "admin"});
                         role3.save();
-                        let  role4  =  new Role({user: "John", group: "Group2", role: "user"});
+                        let  role4  =  new Role({user: "John", group: "Group1", role: "user"});
                         role4.save();
+                        let  role5  =  new Role({user: "Dave", group: "Group4", role: "user"});
+                        role5.save();
                     }
                 })
             })
@@ -76,7 +78,7 @@ module.exports = {
 
 
             socket.on('newchannel', (newchannel)=>{
-                exists = false
+                var exists = false
                 connectDB.then(db  =>  {
                     Channel.find({ 'name': newchannel.name }).then(res  =>  {
                         if (res.length != 0){
@@ -98,17 +100,24 @@ module.exports = {
                 
             });
 
+            socket.on('addRole', (role)=>{
+                connectDB.then(db  =>  {
+                    let  newRole  =  new Role({user: role.user, group: role.group, role: "user"});
+                    newRole.save();
+                }); 
+            });
+
             socket.on('isAdmin', (username)=>{
                 connectDB.then(db  =>  {
                     Role.find({ 'user': username, 'role': 'admin' }).then(res  =>  {
+                        console.log(res)
                         if (res.length == 1){
-                            chat.emit('isAdmin', true);
+                            socket.join("admin")
+                            chat.to("admin").emit('isAdmin', true);
                         } else {
                             chat.emit('isAdmin', false);
                         }
-                        
                 })});
-                
             })
 
             socket.on('channellist', (group)=>{
@@ -133,23 +142,27 @@ module.exports = {
             })
 
             socket.on('rolesList', (msg)=>{
-                userList = []
+                console.log("roles")
+                var groupList = []
                 connectDB.then(db  =>  {
-                    User.find({}).then(res  =>  {
+                    Group.find({}).then(res  =>  {
                         for (i in res){
-                            userList.push({username: res[i].username, groups: []})
+                            groupList.push({group: res[i].name, users: []})
                         }
                     })
                     Role.find({}).then(res  =>  {
-                        for (i in userList){
-                            for (j in res){
-                                if (res[j].user == userList[i].username){
-                                    userList[i].groups.push(res[j].group)
+                        for (i in groupList){
+                            if (groupList[i].group != "All"){
+                                for (j in res){
+                                    if (res[j].group == groupList[i].group){
+                                        
+                                        groupList[i].users.push(res[j].user)
+                                    }
                                 }
                             }
                         }
-                        console.log(userList)
-                        chat.emit('rolesList', userList);
+                        console.log(groupList)
+                        chat.emit('rolesList', groupList);
                 })});
                 
             })
@@ -167,7 +180,9 @@ module.exports = {
                 connectDB.then(db  =>  {
                     Role.find({user: username}).then(res  =>  {
                         for (num in res){
-                            grouplist.push(res[num].group)
+                            if (res[num].group != "All"){
+                                grouplist.push(res[num].group)
+                            }
                         }
                         chat.emit('grouplist', grouplist);
                 })});

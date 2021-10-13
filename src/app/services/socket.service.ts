@@ -42,6 +42,10 @@ export class SocketService {
     this.socket.emit('rolesList','give me the roles');
   }
 
+  reqAddRole(role){
+    this.socket.emit('addRole', role);
+  }
+
   getRoles(next): void {
     this.socket.on('rolesList',res=>next(res));
   }
