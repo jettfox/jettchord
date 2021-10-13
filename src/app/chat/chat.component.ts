@@ -13,31 +13,37 @@ export class ChatComponent implements OnInit {
 
   private socket;
   messagecontent: string = "";
+  group = ""
   messages = [];
   channels=[];
-  channelslist = {name:"", group:"Group1"};
+  groups = [];
+  channelslist = {name:"", group:this.group};
   channelnotice:string="";
-  currentchannel= {name:"", group:"Group1"};
+  currentchannel= {name:"", group:this.group};
   isinChannel= false;
-  newChannel = {name:"", group:"Group1"};
+  newChannel = {name:"", group:this.group};
   numusers:number=0;
   allMessages = [];
 
   constructor(private socketService:SocketService) { }
 
   ngOnInit() {
+    this.channelslist.group = this.group
+    this.currentchannel.group = this.group
+    this.newChannel.group = this.group
     this.socketService.initSocket();
-    this.socketService.getMessage((m)=>{this.messages.push(m)});
+    this.socketService.reqGroupList(sessionStorage.getItem("username"))
+    this.socketService.getGroupList((res)=>{this.groups = res
+    console.log(this.groups)});
     console.log("new messages", this.messages)
-    this.socketService.reqchannelList();
+    this.socketService.reqchannelList(this.group);
     this.socketService.getchannelList((msg)=>{this.channels = msg});
     this.socketService.reqAllMessages(this.channelslist);
     console.log(this.channelslist)
     this.socketService.getAllMessages((msg)=>{this.allMessages = msg});
-    console.log(this.allMessages)
     this.socketService.notice((msg)=>{this.channelnotice = msg})
     this.socketService.joined((msg)=>{this.currentchannel = msg
-      if(this.currentchannel != {name:"", group:"Group1"}){
+      if(this.currentchannel != {name:"", group:this.group}){
         console.log("true")
         this.isinChannel = true;
       } else {
@@ -51,11 +57,23 @@ export class ChatComponent implements OnInit {
 
   join(channel){
     this.channelslist = channel
+    this.channelslist.group = this.group
     this.socketService.joinchannel(this.channelslist);
     this.socketService.reqAllMessages(this.channelslist);
     this.socketService.getAllMessages((msg)=>{this.allMessages = msg});
+    this.isinChannel= true;
     this.socketService.reqnumusers(this.channelslist);
     this.socketService.getnumusers((res)=>{this.numusers = res});
+  }
+
+  joingroup(group){
+    this.group = group;
+    this.channelslist.group = this.group
+    this.currentchannel.group = this.group
+    this.newChannel.group = this.group
+    
+    this.socketService.joingroup(group);
+    this.socketService.reqchannelList(this.group);
   }
 
   clearnotice(){
@@ -63,13 +81,16 @@ export class ChatComponent implements OnInit {
   }
 
   leavechannel(){
+    this.channelslist.group = this.group
+    this.currentchannel.group = this.group
+    this.newChannel.group = this.group
     this.socketService.leavechannel(this.currentchannel);
     this.socketService.reqAllMessages(this.channelslist);
     this.socketService.getAllMessages((msg)=>{this.allMessages = msg});
     this.socketService.reqnumusers(this.currentchannel);
     this.socketService.getnumusers((res)=>{this.numusers = res});
-    this.channelslist = {name:"", group:"Group1"};
-    this.currentchannel= {name:"", group:"Group1"};
+    this.channelslist = {name:"", group:this.group};
+    this.currentchannel= {name:"", group:this.group};
     this.isinChannel = false;
     this.numusers = 0;
     this.channelnotice = ""
@@ -78,21 +99,22 @@ export class ChatComponent implements OnInit {
   }
   
   createchannel(){
+    this.channelslist.group = this.group
+    this.currentchannel.group = this.group
+    this.newChannel.group = this.group
     console.log("channel list", this.channelslist)
     this.socketService.createChannel(this.newChannel);
-    this.socketService.reqchannelList();
+    this.socketService.reqchannelList(this.group);
     this.socketService.getchannelList((msg)=>{this.channels = msg});
-    this.newChannel = {name:"", group:"Group1"};
+    this.newChannel = {name:"", group:this.group};
     
     
   }
 
   chat(){
     if (this.messagecontent){
-  
-      this.socketService.sendMessage({ "message": this.messagecontent, "user": sessionStorage.getItem("username"), "channel": this.currentchannel.name});
+      this.socketService.sendMessage({ "message": this.messagecontent, "user": sessionStorage.getItem("username"), "channel": this.currentchannel.name, "group": this.group});
       this.socketService.getMessage((m)=>{this.messages.push(m)});
-      console.log("new messages", this.messages)
       this.messagecontent = null;
     } else {
       console.log('No Message')

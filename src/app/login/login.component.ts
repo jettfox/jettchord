@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { SocketService } from '../services/socket.service';
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import{HttpClient, HttpErrorResponse} from '@angular/common/http';​
+import * as e from 'cors';
 
 interface User {
   username:string;
@@ -17,35 +19,51 @@ interface User {
 export class LoginComponent implements OnInit {
 
   url:string = 'http://localhost:3000/api/auth';
-  email:string = "";
-  password:string = "";
+  email = "";
+  password = "";
   formData = {};
-  
-  constructor(private http: HttpClient, private router: Router) { }
+  user = {username:"", valid: ""};
+  private socket;
+  constructor(private http: HttpClient, private router: Router, private socketService:SocketService) { }
 
   ngOnInit(): void {
+    
+    
   }
 
   Submit() { 
-    this.formData = {
-        email: this.email,
-        password: this.password
-    }
-    this.http.post<User>(this.url, this.formData).subscribe(
-        res  => {
-            if(typeof(Storage) !== 'undefined') {
-                sessionStorage.setItem("username", res.username);
+    if (this.email != "" && this.password != ""){
+      this.socketService.initSocket();
+      //this.socketService.initSocket();
+      
+      this.socketService.login({email: this.email, password: this.password});
+      console.log(this.user)
+      
+      this.socketService.confirm(
+        (res)=>{this.user = res
+            if (this.user.valid == "true"){
+          
+              if(typeof(Storage) !== 'undefined') {
+                sessionStorage.setItem("username", this.user.username);
                 this.router.navigateByUrl('/').then(() => {
                   window.location.reload();
                 });
-        }},
-        (err: HttpErrorResponse) => {
-        console.log(err.error);
-        });
+              }
+            } else if(this.user.valid == "false") {
+              alert("Wrong Details")
+              this.email = "";
+              this.password = "";
+            }
+        }
+      );
+      console.log(this.user)
+      
+        
+    } else {
+      console.log("no details")
+    }
+    
   }
-
-  
-
   forgot(){
     alert("well, sucks to be you")
   }

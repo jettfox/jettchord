@@ -8,8 +8,14 @@ import { Component, OnInit } from '@angular/core';
 export class AccountComponent implements OnInit {
 
   constructor() { }
-
+  users = []
+  groups = []
+  username = ""
+  roles = {username: "", groups: []}
   ngOnInit(): void {
+    if(sessionStorage.length != 0){
+      this.username = sessionStorage.getItem("username")
+    }
   }
 
 }

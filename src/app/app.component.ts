@@ -13,7 +13,6 @@ export class AppComponent implements OnInit {
     if(sessionStorage.length != 0){
       this.username = sessionStorage.getItem("username")
       this.loggedIn = true
-
     }
   }
 
